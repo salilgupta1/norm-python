@@ -4,4 +4,5 @@ from django.apps import AppConfig
 
 class MessengerConfig(AppConfig):
     name = 'norm.apps.messenger'
-    label = 'norm_messenger'
+    label = 'messenger'
+    verbose_name= 'Messenger'

@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'norm.apps.messenger',
+    'norm.apps.messenger.apps.MessengerConfig',
     'rest_framework'
 ]
 
