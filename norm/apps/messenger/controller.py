@@ -1,7 +1,7 @@
 import requests
 import json
 import datetime
-from .models import Habit, Response, Schedule
+from models import Habit, Response, Schedule
 
 def send_to_facebook(data, url, query_params):
     """
