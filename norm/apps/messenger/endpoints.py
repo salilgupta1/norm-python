@@ -20,9 +20,13 @@ class Webhook(APIView):
 
     def post(self, request, format='json'):
         incoming_data = request.data
-        print incoming_data
+
         for entry in incoming_data['entry']:
             response_data = controller.process_entry(entry)
-            controller.send_to_facebook(response_data, url=os.environ['FB_ENDPOINT'], query_params={'access_token':os.environ['PAGE_ACCESS_TOKEN']})
+            controller.send_to_facebook(
+                response_data,
+                url=os.environ['FB_ENDPOINT'],
+                query_params={'access_token':os.environ['PAGE_ACCESS_TOKEN']}
+            )
         return Response(status=200)
 

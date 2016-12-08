@@ -22,14 +22,10 @@ def process_entry(entry):
         fb_id = messaging['sender']['id']
         response['recipient'] = {'id': fb_id}
 
-        if 'message' in messaging:
-            # for now just return back what was written
-            # needs to handle creating a habit
-            message_text = messaging['message']['text']
-            response['message'] = {'text':message_text}
-        elif 'postback' in messaging:
-            response_id = messaging['postback']['payload']['response_id']
-            answer = messaging['postback']['payload']['answer']
+        if 'postback' in messaging:
+            payload = json.loads(messaging['postback']['payload'])
+            response_id = payload['response_id']
+            answer = payload['answer']
 
             if answer == 'Yes':
                 response['message'] = {'text': 'Good Job!!'}
@@ -46,7 +42,8 @@ def _save_user_response(response_id, answer):
     :param: answer: str
     :return: void
     """
-    response = Response(id=response_id, response_content=answer)
+    response = Response.objects.get(id=response_id)
+    response.response_content = answer
     response.save(force_update=True)
 
 def get_habits():
@@ -64,7 +61,7 @@ def create_responses(habits):
     """
     responses = []
     for habit in habits:
-        response = Response(recipient_id=habit.recipient_id, habit_id=habit.id)
+        response = Response(recipient_id=habit.recipient_id, habit_id=habit)
         responses.append(response)
 
     Response.objects.bulk_create(responses)
