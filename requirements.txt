@@ -3,6 +3,7 @@ amqp==2.1.2
 anyjson==0.3.3
 billiard==3.5.0.2
 celery==4.0.0
+dj-database-url==0.4.1
 djangorestframework==3.5.3
 kombu==4.0.0
 psycopg2==2.6.2
