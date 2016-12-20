@@ -1,11 +1,10 @@
 import requests
 import json
 import datetime
-import logging
+import sys
 
 from models import Habit, Response, Schedule
 
-logger = logging.getLogger(__name__)
 
 def send_to_facebook(data, url, query_params):
     """
@@ -22,10 +21,9 @@ def process_entry(entry):
     return response_data: dict
     """
     response = {}
+    log(entry)
     for messaging in entry['messaging']:
-        logger.info(messaging)
-
-
+        
         fb_id = messaging['sender']['id']
         response['recipient'] = {'id': fb_id}
    
@@ -116,3 +114,9 @@ def create_generic_templates(response_id, content):
     }
 
     return template
+
+
+
+def log(message):
+    print str(message)
+    sys.stdout.flush()
