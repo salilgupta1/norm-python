@@ -1,7 +1,11 @@
 import requests
 import json
 import datetime
+import logging
+
 from models import Habit, Response, Schedule
+
+logger = logging.getLogger(__name__)
 
 def send_to_facebook(data, url, query_params):
     """
@@ -19,10 +23,18 @@ def process_entry(entry):
     """
     response = {}
     for messaging in entry['messaging']:
+        logger.info(messaging)
+
+
         fb_id = messaging['sender']['id']
         response['recipient'] = {'id': fb_id}
-
-        if 'postback' in messaging:
+   
+        if 'message' in messaging:
+            # for now just return back what was written
+            # needs to handle creating a habit
+            message_text = messaging['message']['text']
+            response['message'] = {'text':message_text}
+        elif 'postback' in messaging:
             payload = json.loads(messaging['postback']['payload'])
             response_id = payload['response_id']
             answer = payload['answer']
