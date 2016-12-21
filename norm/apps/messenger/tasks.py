@@ -32,8 +32,13 @@ def send_reminders():
             json_ = {'recipient': {'id': response.recipient_id}, 'message': generic}
             logger.debug(json_)
 
-            controller.send_to_facebook(
-                json_,
-                os.environ['FB_ENDPOINT'],
-                {'access_token':os.environ['PAGE_ACCESS_TOKEN']}
-            )
+
+
+            response = controller.send_to_facebook(
+                        json_, 
+                        os.environ['FB_ENDPOINT'], 
+                        {'access_token':os.environ['PAGE_ACCESS_TOKEN']}
+                    )
+
+            controller.log(response)
+
