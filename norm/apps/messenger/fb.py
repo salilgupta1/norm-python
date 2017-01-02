@@ -29,13 +29,13 @@ def process_entry(entry):
     response = {}
     log(entry)
     for messaging in entry['messaging']:
-        
+        fb_id = messaging['sender']['id']
         if 'postback' in messaging:
        		response['message'] = {'text': self._process_postback(messaging['postback'])}
-        	response['recipient'] = {'id': messaging['sender']['id']}
+        	response['recipient'] = {'id': fb_id}
         	self.send_to_messenger(response)
         else:
-            self._process_user_message(messaging)
+            self._process_user_message(messaging, fb_id)
         
 
 def _process_postback(postback):
@@ -53,12 +53,16 @@ def _process_postback(postback):
     
     return 'Good Job!!' if answer == 'Yes' else 'Oh Poop ...'
 
-def _process_message(message):
+def _process_message(message, fb_id):
 	"""
 	Wit API endpoint that will deal with all message processing
+	:param: message str
+	:param: fb_id str
 	"""
 	client = Wit(access_token=os.environ['WIT_TOKEN'], actions=wit_utility.actions)
-	client.run_actions(session_id=wit_utility.create_session_id(), message=message)
+
+	session_id = fb_id + '-{}'.format(wit_utility.create_session_id())
+	client.run_actions(session_id=session_id, message=message)
 
 def create_generic_templates(response_id, content):
     """

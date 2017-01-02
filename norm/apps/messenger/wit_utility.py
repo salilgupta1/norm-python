@@ -23,9 +23,8 @@ def first_entity_value(entities, entity):
 def create_session_id():
     return hex(int(time()*1000))[2:]
 
-
 actions = {
 	'send':send,
 	'merge': merge,
-	'save_habit': save_habit
+	'saveHabit': save_habit
 }
