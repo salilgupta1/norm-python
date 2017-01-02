@@ -4,7 +4,7 @@ from django.http.response import HttpResponse
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-import controller
+from .fb import FB
 
 # Create your views here.
 
@@ -20,13 +20,8 @@ class Webhook(APIView):
 
     def post(self, request, format='json'):
         incoming_data = request.data
-
+        fb = FB()
         for entry in incoming_data['entry']:
-            response_data = controller.process_entry(entry)
-            controller.send_to_facebook(
-                response_data,
-                url=os.environ['FB_ENDPOINT'],
-                query_params={'access_token':os.environ['PAGE_ACCESS_TOKEN']}
-            )
+            response_data = fb.process_entry(entry)
         return Response(status=200)
 
