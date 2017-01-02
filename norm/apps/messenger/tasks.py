@@ -5,7 +5,7 @@ from celery.decorators import periodic_task
 from celery.utils.log import get_task_logger
 
 import controller
-from .fb import FB
+import fb
 from .models import Response, Habit
 
 logger = get_task_logger(__name__)
@@ -27,7 +27,6 @@ def send_reminders():
         responses = controller.create_responses(habits)
         logger.info('we got some reminders')
 
-        fb = FB()
         for response, habit in izip(responses, habits):
             generic = fb.create_generic_templates(response.id, habit.content)
             json_ = {'recipient': {'id': response.recipient_id}, 'message': generic}
