@@ -55,7 +55,7 @@ def log(message):
 
 def convert_to_gmt(user_timezone, time):
     """
-    :param: user_timezone str
+    :param: user_timezone Integer
     :param: time Integer
     return Integer
     """

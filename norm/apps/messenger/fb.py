@@ -8,13 +8,18 @@ import wit_utility
 
 
 def get_fb_user_timezone(fb_user_id):
+    """
+    :param: Integer
+    return Integer
+    """
     url = 'https://graph.facebook.com/v2.6/{}'.format(str(fb_user_id))
     query_params = {
         'fields':'timezone',
         'access_token': os.environ['PAGE_ACCESS_TOKEN']
     }
 
-    requests.get(url, params=query_params)
+    response = requests.get(url, params=query_params)
+    return response['timezone']
 
 
 def send_to_messenger(recipient, text):
