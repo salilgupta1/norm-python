@@ -36,8 +36,42 @@ def create_responses(habits):
     Response.objects.bulk_create(responses)
     return responses
 
+def create_habit(content, recipient_id, hour):
+    """
+    Creates a habit and the appropriate schedule object
+    :param: content str
+    :param: recipient_id Integer
+    :param: hour
+    """
+    habit = Habit(recipient_id, content)
+    habit.save()
+    schedule = Schedule(habit.id, hour)
+    schedule.save()
+
+### utility functions
 def log(message):
     print str(message)
     sys.stdout.flush()
+
+def convert_to_gmt(user_timezone, time):
+    """
+    :param: user_timezone str
+    :param: time Integer
+    return Integer
+    """
+    return (time + user_timezone) % 24
+
+def convert_to_military(time, meridian):
+    """
+    :param: time Integer
+    :param: meridian str
+    :return: Integer
+    """
+    if meridian.upper() == 'PM':
+        time += 12
+    return time
+
+
+
 
 

@@ -1,3 +1,5 @@
+import dj_database_url
+
 from common import *
 
 DEBUG = False
@@ -10,3 +12,7 @@ ADMINS = (
 )
 
 MANAGERS = ADMINS
+
+DATABASES = {
+    'default': dj_database_url.config()
+}

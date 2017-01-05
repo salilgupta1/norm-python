@@ -1,6 +1,7 @@
 import requests
 import os
 import json
+from wit import Wit
 
 import controller
 import wit_utility
@@ -8,35 +9,46 @@ import wit_utility
 
 def get_fb_user_timezone(fb_user_id):
     url = 'https://graph.facebook.com/v2.6/{}'.format(str(fb_user_id))
-    query_params = {'fields':'timezone'}
+    query_params = {
+        'fields':'timezone',
+        'access_token': os.environ['PAGE_ACCESS_TOKEN']
+    }
 
-    response = requests.get(url, params=query_params)
+    requests.get(url, params=query_params)
 
-def send_to_messenger(data):
+
+def send_to_messenger(recipient, text):
     """
-    :param: data: dict
-    :return: status Integer
+    :param: recipient: Integer
+    :param: text: str
     """
-    url = os.environ['FB_ENDPOINT']
-    query_params = {'access_token':os.environ['PAGE_ACCESS_TOKEN']}
-    return requests.post(url, json=data, params=query_params)
+
+    data = {
+        'recipient': {'id': recipient},
+        'message': {'text' : text}
+    }
+
+    query_params = {
+        'access_token':os.environ['PAGE_ACCESS_TOKEN']
+    }
+
+    requests.post(url=os.environ['FB_ENDPOINT'], json=data, params=query_params)
 
 def process_entry(entry):
     """
-    Processes the entry dictionary 
+    Processes the entry dictionary
     :param: entry: dict
     """
     response = {}
-    log(entry)
+    controller.log(entry)
     for messaging in entry['messaging']:
         fb_id = messaging['sender']['id']
         if 'postback' in messaging:
-       		response['message'] = {'text': self._process_postback(messaging['postback'])}
-        	response['recipient'] = {'id': fb_id}
-        	self.send_to_messenger(response)
+            text = _process_postback(messaging['postback'])
+            send_to_messenger(fb_id, text)
         else:
-            self._process_user_message(messaging, fb_id)
-        
+            _process_user_message(messaging['message']['text'], fb_id)
+
 
 def _process_postback(postback):
     """
@@ -47,22 +59,22 @@ def _process_postback(postback):
     payload = json.loads(postback['payload'])
     response_id = payload['response_id']
     answer = payload['answer']
-    
+
     # not ideal place to put this but w.e.
     controller.save_user_response(response_id, answer)
-    
     return 'Good Job!!' if answer == 'Yes' else 'Oh Poop ...'
 
-def _process_message(message, fb_id):
-	"""
-	Wit API endpoint that will deal with all message processing
-	:param: message str
-	:param: fb_id str
-	"""
-	client = Wit(access_token=os.environ['WIT_TOKEN'], actions=wit_utility.actions)
+def _process_user_message(message, fb_id):
+    """
+    Wit API endpoint that will deal with all message processing
+    :param: message str
+    :param: fb_id str
+    """
 
-	session_id = fb_id + '-{}'.format(wit_utility.create_session_id())
-	client.run_actions(session_id=session_id, message=message)
+    client = Wit(access_token=os.environ['WIT_TOKEN'], actions=wit_utility.actions)
+
+    session_id = fb_id
+    client.run_actions(session_id=session_id, message=message)
 
 def create_generic_templates(response_id, content):
     """
