@@ -12,9 +12,7 @@ def save_user_response(response_id, answer):
     :param: answer: str
     :return: void
     """
-    response = Response.objects.get(id=response_id)
-    response.response_content = answer
-    response.save(force_update=True)
+    Response.objects.filter(id=response_id).update(response_content=answer)
 
 def get_habits():
     """
@@ -56,7 +54,7 @@ def log(message):
 
 def convert_to_gmt(user_timezone, hour):
     """
-    :param: user_timezone Integer
+    :param: user_timezone offset from UTC Integer
     :param: hour Integer
     return Integer
     """

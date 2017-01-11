@@ -10,12 +10,12 @@ import wit_utility
 
 client = wit.Wit(access_token=os.environ['WIT_TOKEN'], actions=wit_utility.actions)
 
-def get_fb_user_timezone(fb_user_id):
+def get_fb_user_timezone(fb_id):
     """
-    :param: Integer
-    return Integer
+    :param: fb_id Integer
+    return timezone Integer
     """
-    url = 'https://graph.facebook.com/v2.6/{}'.format(str(fb_user_id))
+    url = 'https://graph.facebook.com/v2.6/{}'.format(str(fb_id))
     query_params = {
         'fields':'timezone',
         'access_token': os.environ['PAGE_ACCESS_TOKEN']
@@ -25,14 +25,15 @@ def get_fb_user_timezone(fb_user_id):
     return response['timezone']
 
 
-def send_to_messenger(recipient, text):
+def send_to_messenger(recipient_id, text):
     """
-    :param: recipient: Integer
+    :param: recipient_id: Integer
     :param: text: str
+    return void
     """
 
     data = {
-        'recipient': {'id': recipient},
+        'recipient': {'id': recipient_id},
         'message': {'text' : text}
     }
 
@@ -41,21 +42,25 @@ def send_to_messenger(recipient, text):
     }
 
     url = 'https://graph.facebook.com/v2.6/me/messages'
-    response = requests.post(url, json=data, params=query_params)
+    requests.post(url, json=data, params=query_params)
 
 def process_entry(entry):
     """
     Processes the entry dictionary
     :param: entry: dict
+    return void
     """
-    response = {}
-    controller.log(entry)
+    # debug code
+    # controller.log(entry)
+
     for messaging in entry['messaging']:
         fb_id = messaging['sender']['id']
+
         if 'postback' in messaging:
             text = _process_postback(messaging['postback'])
             send_to_messenger(fb_id, text)
         else:
+            # wit_ai
             _process_user_message(messaging['message']['text'], fb_id)
 
 
@@ -66,11 +71,9 @@ def _process_postback(postback):
     return text_response str
     """
     payload = json.loads(postback['payload'])
-    response_id = payload['response_id']
-    answer = payload['answer']
 
     # not ideal place to put this but w.e.
-    controller.save_user_response(response_id, answer)
+    controller.save_user_response(payload['response_id'], payload['answer'])
     return 'Good Job!!' if answer == 'Yes' else 'Oh Poop ...'
 
 def _process_user_message(message, fb_id):
@@ -79,12 +82,11 @@ def _process_user_message(message, fb_id):
     :param: message str
     :param: fb_id str
     """
-
     session_id = wit_utility.find_or_create_session_id(fb_id)
     try:
         client.run_actions(session_id=session_id, message=message)
     except:
-        print sys.exc_info()
+        controller.log(sys.exc_info())
 
 def create_generic_templates(response_id, content):
     """

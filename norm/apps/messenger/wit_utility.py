@@ -45,6 +45,8 @@ def first_entity_value(entities, entity):
 
 def find_or_create_session_id(fb_id):
     """
+    Searches a global dictionary called sessions
+    Not a long term solution but doable for now
     :param: fb_id str
     return str
     """
@@ -59,9 +61,7 @@ def delete_session_id(fb_id):
 def get_fb_id_from_session_id(session_id):
     return session_id.split('-')[0]
 
-# fb_id => session_id
 sessions = {}
-
 actions = {
     'send':send,
     'saveHabit': save_habit
