@@ -1,6 +1,7 @@
 import json
 import datetime
 import sys
+import re
 
 from time import time
 from models import Habit, Response, Schedule
@@ -41,11 +42,11 @@ def create_habit(content, recipient_id, hour):
     Creates a habit and the appropriate schedule object
     :param: content str
     :param: recipient_id Integer
-    :param: hour
+    :param: hour Integer
     """
-    habit = Habit(recipient_id, content)
+    habit = Habit(recipient_id=recipient_id, content=content)
     habit.save()
-    schedule = Schedule(habit.id, hour)
+    schedule = Schedule(habit_id=habit, hour=hour)
     schedule.save()
 
 ### utility functions
@@ -53,25 +54,23 @@ def log(message):
     print str(message)
     sys.stdout.flush()
 
-def convert_to_gmt(user_timezone, time):
+def convert_to_gmt(user_timezone, hour):
     """
     :param: user_timezone Integer
-    :param: time Integer
+    :param: hour Integer
     return Integer
     """
-    return (time + user_timezone) % 24
+    return (hour - user_timezone) % 24
 
-def convert_to_military(time, meridian):
+def extract_hour(date_time_str):
     """
-    :param: time Integer
-    :param: meridian str
-    :return: Integer
+    :param: date_time_str str
+    :return: (hour:str, military_hour:int)
     """
-    if meridian.upper() == 'PM':
-        time += 12
-    return time
-
-
-
-
-
+    military_hour = int(re.search('T(\d+)[^:]*', date_time_str).group(1))
+    if military_hour > 12:
+        hour = military_hour - 12
+        hour = str(hour) + 'pm'
+    else:
+        hour = str(military_hour) + 'am'
+    return hour, military_hour

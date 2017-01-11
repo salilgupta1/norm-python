@@ -16,7 +16,7 @@ class Webhook(APIView):
 
         if request.query_params.get('hub.verify_token', False) == os.environ['VERIFY_TOKEN']:
             return HttpResponse(request.query_params['hub.challenge'])
-        return Response(status=200)
+        return Response(status=403)
 
     def post(self, request, format='json'):
         incoming_data = request.data

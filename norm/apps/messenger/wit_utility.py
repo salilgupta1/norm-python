@@ -6,41 +6,29 @@ def send(request, response):
     """
     Wit AI wrapper for sending messages to fb
     """
-    fb.send_to_messenger(request['session_id'], response['text'])
+    fb_id = get_fb_id_from_session_id(request['session_id'])
+    fb.send_to_messenger(fb_id, response['text'])
 
 def save_habit(request):
     context = request['context']
     entities = request['entities']
 
-    if 'when' in context:
-        del context['when']
-    if 'meridian' in context:
-        del context['meridian']
+    habit = first_entity_value(entities, 'reminder')
+    date_time = first_entity_value(entities, 'datetime')
 
-    when = first_entity_value(entities, 'when')
-    if when:
-        context['when'] = when
+    if habit:
+        context['habit'] = habit
 
-    meridian = first_entity_value(entities, 'meridian')
-    if meridian:
-        context['meridian'] = meridian
+    if date_time:
+        hour, military_hour = controller.extract_hour(date_time)
+        context['hour'] = hour
 
-    hour = controller.convert_to_military(when, meridian)
-    user_timezone = fb.get_fb_user_timezone(request['session_id'])
-    hour = controller.convert_to_gmt(user_timezone, hour)
-    controller.create_habit(context['habit'], request['session_id'], hour)
+    fb_id = get_fb_id_from_session_id(request['session_id'])
+    user_timezone = fb.get_fb_user_timezone(fb_id)
 
-    return context
-
-def merge(request):
-    context = request['context']
-    entities = request['entities']
-
-    if 'reminder' in context:
-        del context['reminder']
-    reminder = first_entity_value(entities, 'reminder')
-    if reminder:
-        context['habit'] = reminder
+    military_hour = controller.convert_to_gmt(user_timezone, military_hour)
+    controller.create_habit(context['habit'], fb_id, military_hour)
+    delete_session_id(fb_id)
 
     return context
 
@@ -55,11 +43,26 @@ def first_entity_value(entities, entity):
         return None
     return val['value'] if isinstance(val, dict) else val
 
-# def create_session_id():
-#     return hex(int(time()*1000))[2:]
+def find_or_create_session_id(fb_id):
+    """
+    :param: fb_id str
+    return str
+    """
+    if sessions.get(fb_id) is None:
+        unique_id = hex(int(time.time()*1000))[2:]
+        sessions[fb_id] = fb_id + '-{}'.format(unique_id)
+    return sessions[fb_id]
+
+def delete_session_id(fb_id):
+    del sessions[fb_id]
+
+def get_fb_id_from_session_id(session_id):
+    return session_id.split('-')[0]
+
+# fb_id => session_id
+sessions = {}
 
 actions = {
     'send':send,
-    'merge': merge,
     'saveHabit': save_habit
 }

@@ -1,11 +1,14 @@
-import requests
 import os
+import sys
+
 import json
-from wit import Wit
+import requests
+import wit
 
 import controller
 import wit_utility
 
+client = wit.Wit(access_token=os.environ['WIT_TOKEN'], actions=wit_utility.actions)
 
 def get_fb_user_timezone(fb_user_id):
     """
@@ -18,7 +21,7 @@ def get_fb_user_timezone(fb_user_id):
         'access_token': os.environ['PAGE_ACCESS_TOKEN']
     }
 
-    response = requests.get(url, params=query_params)
+    response = requests.get(url, params=query_params).json()
     return response['timezone']
 
 
@@ -37,7 +40,8 @@ def send_to_messenger(recipient, text):
         'access_token':os.environ['PAGE_ACCESS_TOKEN']
     }
 
-    requests.post(url=os.environ['FB_ENDPOINT'], json=data, params=query_params)
+    url = 'https://graph.facebook.com/v2.6/me/messages'
+    response = requests.post(url, json=data, params=query_params)
 
 def process_entry(entry):
     """
@@ -76,10 +80,11 @@ def _process_user_message(message, fb_id):
     :param: fb_id str
     """
 
-    client = Wit(access_token=os.environ['WIT_TOKEN'], actions=wit_utility.actions)
-
-    session_id = fb_id
-    client.run_actions(session_id=session_id, message=message)
+    session_id = wit_utility.find_or_create_session_id(fb_id)
+    try:
+        client.run_actions(session_id=session_id, message=message)
+    except:
+        print sys.exc_info()
 
 def create_generic_templates(response_id, content):
     """
