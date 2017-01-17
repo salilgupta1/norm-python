@@ -25,16 +25,16 @@ def get_fb_user_timezone(fb_id):
     return response['timezone']
 
 
-def send_to_messenger(recipient_id, text):
+def send_to_messenger(recipient_id, message):
     """
     :param: recipient_id: Integer
-    :param: text: str
+    :param: message: dictionary
     return void
     """
 
     data = {
         'recipient': {'id': recipient_id},
-        'message': {'text' : text}
+        'message': message
     }
 
     query_params = {
@@ -57,12 +57,11 @@ def process_entry(entry):
         fb_id = messaging['sender']['id']
 
         if 'postback' in messaging:
-            text = _process_postback(messaging['postback'])
-            send_to_messenger(fb_id, text)
+            message = { 'text': process_postback(messaging['postback']) }
+            send_to_messenger(fb_id, message)
         else:
             # wit_ai
             _process_user_message(messaging['message']['text'], fb_id)
-
 
 def _process_postback(postback):
     """

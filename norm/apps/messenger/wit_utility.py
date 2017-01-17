@@ -7,7 +7,7 @@ def send(request, response):
     Wit AI wrapper for sending messages to fb
     """
     fb_id = get_fb_id_from_session_id(request['session_id'])
-    fb.send_to_messenger(fb_id, response['text'])
+    fb.send_to_messenger(fb_id, {'text':response['text']})
 
 def save_habit(request):
     context = request['context']
@@ -19,6 +19,8 @@ def save_habit(request):
     if habit:
         context['habit'] = habit
 
+    # We are assuming that the user will
+    # include the datetime. That's why i'm not worried about not hitting this if statement ...
     if date_time:
         hour, military_hour = controller.extract_hour(date_time)
         context['hour'] = hour
