@@ -57,7 +57,7 @@ def process_entry(entry):
         fb_id = messaging['sender']['id']
 
         if 'postback' in messaging:
-            message = { 'text': process_postback(messaging['postback']) }
+            message = { 'text': _process_postback(messaging['postback']) }
             send_to_messenger(fb_id, message)
         else:
             # wit_ai
