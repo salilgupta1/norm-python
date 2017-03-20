@@ -41,8 +41,11 @@ def send_to_messenger(recipient_id, message):
         'access_token':os.environ['PAGE_ACCESS_TOKEN']
     }
 
+    controller.log(data)
     url = 'https://graph.facebook.com/v2.6/me/messages'
-    requests.post(url, json=data, params=query_params)
+    response = requests.post(url, json=data, params=query_params)
+    controller.log('response is')
+    controller.log(response.json())
 
 def process_entry(entry):
     """
@@ -57,6 +60,7 @@ def process_entry(entry):
         fb_id = messaging['sender']['id']
 
         if 'postback' in messaging:
+            controller.log('I\'m here inside postback')
             message = { 'text': _process_postback(messaging['postback']) }
             send_to_messenger(fb_id, message)
         else:

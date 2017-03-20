@@ -19,7 +19,7 @@ class Webhook(APIView):
         return Response(status=403)
 
     def post(self, request, format='json'):
-        incoming_data = request.data
-        for entry in incoming_data['entry']:
+        controller.log('inside the endpoint itself')
+        for entry in request.data['entry']:
             fb.process_entry(entry)
         return Response(status=200)
